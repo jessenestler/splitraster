@@ -1,3 +1,4 @@
+import argparse
 import math
 from pathlib import Path
 
@@ -10,7 +11,7 @@ from shapely.geometry import box
 
 class TileGenerator:
     def __init__(self, in_raster: Path, out_folder: Path,
-                 tile_area_sqm: int = 1000000, nodata: int = None):
+                 tile_area_sqm: int, nodata: int):
         self.in_raster = in_raster
         self.out_folder = out_folder
         self.tile_area_sqm = tile_area_sqm
@@ -154,3 +155,60 @@ class TileGenerator:
         # Export
         out_index = self.out_folder / 'index.shp'
         tiles_gdf.to_file(out_index)
+
+
+# Create parser with a description and arguments
+description = (
+    "Splits a large raster into a series of tiles, and generates a tile index."
+)
+parser = argparse.ArgumentParser(
+    description=description
+)
+
+# Add arguments
+parser.add_argument(
+    "raster",
+    type=Path,
+    help="The raster that needs to be split into tiles."
+)
+
+parser.add_argument(
+    "folder",
+    type=Path,
+    help="The output location for the tiles."
+)
+
+parser.add_argument(
+    "-a",
+    "--area",
+    default=1000000,
+    type=int,
+    help=(
+        "The area of the tiles in square meters. Defaults to 1,000,000 "
+        "square meters (e.g. 1 square kilometer)."
+    )
+)
+
+parser.add_argument(
+    "-n",
+    "--nodata",
+    default=None,
+    type=int,
+    help=(
+        "The desired no data value, if it differs from the raster's "
+        "standard one."
+    )
+)
+
+if __name__ == '__main__':
+    # Parse arguments
+    args = parser.parse_args()
+
+    # Initialize a TileGenerator object
+    tile_gen = TileGenerator(args.raster, args.folder, args.area, args.nodata)
+
+    # Generate tiles
+    tile_gen.generate_tiles()
+
+    # Create tile index
+    tile_gen.create_tile_index()
