@@ -9,11 +9,11 @@ from pathlib import Path
 
 class TileGenerator:
     def __init__(self, in_raster: Path, out_folder: Path,
-                 tile_area_sqm: int = 1000000):
+                 tile_area_sqm: int = 1000000, nodata: int = None):
         self.in_raster = in_raster
         self.out_folder = out_folder
         self.tile_area_sqm = tile_area_sqm
-        self._nodata = 0
+        self.nodata = nodata
         self._raster = self.raster
         self._metadata = self.metadata
         self._res_x = self.res_x
@@ -34,11 +34,29 @@ class TileGenerator:
         dict
             Metadata understandable by rasterio functions and methods
         """
+        # Create a dict with each rasterio data type's nodata value
+        null_values = {
+            'uint8': 255,
+            'uint16': 65535,
+            'uint32': 4294967295,
+            'int8': -128,
+            'int16': -32768,
+            'int32': -2147483648,
+            'float32': -9999.0,
+            'float64': -9999.0
+        }
+
         # Save the metadata
         meta = self._raster.profile
 
         # Alter nodata if it's null
-        meta['nodata'] = self._nodata
+        if self.nodata:
+            meta['nodata'] = self.nodata
+        else:
+            try:
+                meta['nodata'] = null_values[meta['dtype']]
+            except KeyError:
+                pass
 
         return meta
 
@@ -93,7 +111,7 @@ class TileGenerator:
                 tile_data = self._raster.read(window=window)
 
                 # Skip creating the tile if it contains only NoData values
-                if not tile_data[tile_data != self._nodata].any():
+                if not tile_data[tile_data != self.nodata].any():
                     continue
 
                 # Update metadata
