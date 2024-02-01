@@ -155,7 +155,7 @@ class TileGenerator:
         tiles_gdf = gpd.pd.concat(gdfs, ignore_index=True)
 
         # Export
-        out_index = self.out_folder / 'index.shp'
+        out_index = self.out_folder / f'index{self.file_name}.shp'
         tiles_gdf.to_file(out_index)
 
 
