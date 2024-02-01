@@ -1,0 +1,9 @@
+name: splitenv
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pip
+  - geopandas
+  - rasterio
+  - ipykernel
