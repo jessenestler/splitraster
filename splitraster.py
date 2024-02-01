@@ -11,11 +11,12 @@ from shapely.geometry import box
 
 class TileGenerator:
     def __init__(self, in_raster: Path, out_folder: Path,
-                 tile_area_sqm: int, nodata: int):
+                 tile_area_sqm: int, nodata: int, file_name: str):
         self.in_raster = in_raster
         self.out_folder = out_folder
         self.tile_area_sqm = tile_area_sqm
         self.nodata = nodata
+        self.file_name = file_name
         self._raster = self.raster
         self._metadata = self.metadata
         self._res_x = self.res_x
@@ -122,7 +123,8 @@ class TileGenerator:
                 meta['transform'] = rio.windows.transform(
                     window, self._raster.transform)
 
-                out_tile = self.out_folder / f'R{r_num}C{c_num}_lulc.tif'
+                tile_name = f'R{r_num}C{c_num}{self.file_name}.tif'
+                out_tile = self.out_folder / tile_name
                 with rio.open(out_tile, 'w', **meta) as dst:
                     dst.write(tile_data)
                     if self._colormap:
@@ -200,12 +202,26 @@ parser.add_argument(
     )
 )
 
+parser.add_argument(
+    "-f",
+    "--file-name",
+    default='_lulc',
+    type=str,
+    help=(
+        "The string to append to the end of the tile file names. The tool "
+        "creates file names according to which row and column the tile "
+        "belongs to, and this will append a string to the end of every file "
+        "(e.g. R0C4_lulc.tif or R0C4_ppa.tif, etc). Defaults to '_lulc'."
+    )
+)
+
 if __name__ == '__main__':
     # Parse arguments
     args = parser.parse_args()
 
     # Initialize a TileGenerator object
-    tile_gen = TileGenerator(args.raster, args.folder, args.area, args.nodata)
+    tile_gen = TileGenerator(args.raster, args.folder,
+                             args.area, args.nodata, args.file_name)
 
     # Generate tiles
     tile_gen.generate_tiles()
