@@ -113,11 +113,11 @@ class TileGenerator:
                 tile_data = self._raster.read(window=window)
 
                 # Skip creating the tile if it contains only NoData values
-                if not tile_data[tile_data != self.nodata].any():
+                meta = self._metadata
+                if not tile_data[tile_data != meta['nodata']].any():
                     continue
 
                 # Update metadata
-                meta = self._metadata
                 meta['width'], meta['height'] = tile_width, tile_height
                 meta['transform'] = rio.windows.transform(
                     window, self._raster.transform)
