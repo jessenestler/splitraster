@@ -1,10 +1,11 @@
 import math
-from osgeo import gdal
+from pathlib import Path
+
+import geopandas as gpd
+from osgeo import gdal  # Import before rasterio to avoid DLL errors
 import rasterio as rio
 from rasterio.windows import Window
 from shapely.geometry import box
-import geopandas as gpd
-from pathlib import Path
 
 
 class TileGenerator:
