@@ -59,11 +59,11 @@ class TileGenerator:
         factor = self._raster.crs.linear_units_factor[1]
 
         # Determine side length of a square with spec'd tile area
-        side_length_m = int(math.sqrt(self.tile_area_sqm))
+        side_length_m = math.sqrt(self.tile_area_sqm)
 
         # Perform unit conversion to get number of pixels
-        tile_width = int(side_length_m / factor / self._res_x)
-        tile_height = int(side_length_m / factor / self._res_y)
+        tile_width = math.ceil(side_length_m / factor / self._res_x)
+        tile_height = math.ceil(side_length_m / factor / self._res_y)
 
         return (tile_width, tile_height)
 
