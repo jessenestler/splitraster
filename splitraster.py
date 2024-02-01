@@ -119,9 +119,9 @@ class TileGenerator:
             with rio.open(tile_file) as src:
                 xmin, ymin, xmax, ymax = src.bounds
                 tile_geometry = box(xmin, ymin, xmax, ymax)
-                gdf = gpd.GeoDataFrame(data={'tile': name},
-                                       geometry=[tile_geometry],
+                gdf = gpd.GeoDataFrame(geometry=[tile_geometry],
                                        crs=src.crs)
+                gdf['tile'] = name
                 gdfs.append(gdf)
 
         # Concat all gdfs into one
