@@ -70,7 +70,11 @@ class TileGenerator:
     @property
     def colormap(self) -> dict:
         """The color map for the raster."""
-        return self._raster.colormap(1)
+        try:
+            color = self._raster.colormap(1)
+        except ValueError:
+            color = None
+        return color
 
     def generate_tiles(self):
         """
@@ -101,7 +105,8 @@ class TileGenerator:
                 out_tile = self.out_folder / f'R{r_num}C{c_num}_lulc.tif'
                 with rio.open(out_tile, 'w', **meta) as dst:
                     dst.write(tile_data)
-                    dst.write_colormap(1, self._colormap)
+                    if self._colormap:
+                        dst.write_colormap(1, self._colormap)
 
     def create_tile_index(self):
         """
